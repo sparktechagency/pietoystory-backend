@@ -94,28 +94,30 @@
 
         <div class="invoice-box">
             <div style="text-align:center;">
-                <p><strong>Invoice ID:</strong> ABG-25-45</p>
+                <p><strong>Invoice ID: {{ $data['invoice_id'] }}</p>
                 <p><strong>Date:</strong> {{ date('F j, Y') }}</p>
             </div>
+
+
 
             <!-- Customer Section -->
             <div class="section-title">👤 Customer Information</div>
             <table>
                 <tr class="item">
                     <td>Full Name</td>
-                    <td>{{ $billing->first_name }} {{ $billing->last_name }}</td>
+                    <td>{{ $data['first_name'] }} {{ $data['last_name'] }}</td>
                 </tr>
                 <tr class="item">
                     <td>Email</td>
-                    <td>{{ $billing->email }}</td>
+                    <td>{{ $data['contact_email'] }}</td>
                 </tr>
                 <tr class="item">
                     <td>Phone</td>
-                    <td>{{ $billing->phone }}</td>
+                    <td>{{ $data['contact_number'] }}</td>
                 </tr>
                 <tr class="item">
                     <td>Address</td>
-                    <td>{{ $billing->address }}</td>
+                    <td>{{ $data['full_address'] }}</td>
                 </tr>
             </table>
 
@@ -124,31 +126,31 @@
             <table>
                 <tr class="item">
                     <td>Zip Code</td>
-                    <td>{{ $quote->zip_code }}</td>
+                    <td>{{ $data['quote']->zip_code }}</td>
                 </tr>
                 <tr class="item">
                     <td>How Often</td>
-                    <td>{{ $quote->how_often }}</td>
+                    <td>{{ $data['quote']->how_often }}</td>
                 </tr>
                 <tr class="item">
                     <td>Number of Dogs</td>
-                    <td>{{ $quote->amount_of_dogs }}</td>
+                    <td>{{ $data['quote']->amount_of_dogs }}</td>
                 </tr>
                 <tr class="item">
                     <td>Total Area</td>
-                    <td>{{ $quote->total_area }} sq ft</td>
+                    <td>{{ $data['quote']->total_area }} sq ft</td>
                 </tr>
                 <tr class="item">
                     <td>Area to Clean</td>
-                    <td>{{ $quote->area_to_clean }}</td>
+                    <td>{{ $data['quote']->area_to_clean }}</td>
                 </tr>
                 <tr class="item">
-                    <td>Dog's Name</td>
-                    <td>{{ $billing->dog_name }}</td>
+                    <td>Dogs Name</td>
+                    <td>{{ $data['dogs_name'] ?? 'None' }}</td>
                 </tr>
                 <tr class="item">
                     <td>Additional Comments</td>
-                    <td>{{ $billing->comments ?? 'None' }}</td>
+                    <td>{{ $data['additional_comments'] ?? 'None' }}</td>
                 </tr>
             </table>
 
@@ -157,15 +159,15 @@
             <table>
                 <tr class="item">
                     <td>Payment Intent ID</td>
-                    <td>{{ $quote->payment_intent_id ?? 'N/A' }}</td>
+                    <td>{{ $data['quote']->payment_intent_id ?? 'N/A' }}</td>
                 </tr>
                 <tr class="item total">
                     <td>Total Cost</td>
-                    <td>${{ number_format($quote->cost, 2) }}</td>
+                    <td>${{ number_format($data['quote']->cost, 2) }}</td>
                 </tr>
                 <tr class="item">
                     <td>Status</td>
-                    <td>{{ ucfirst($quote->status) }}</td>
+                    <td>{{ $data['quote']->status }}</td>
                 </tr>
             </table>
 

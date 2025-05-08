@@ -9,18 +9,18 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class SendEnquiryMail extends Mailable implements ShouldQueue
+class SendAdminMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public $send_enquiry;
+    public $data;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($send_enquiry)
+    public function __construct($data)
     {
-        $this->send_enquiry = $send_enquiry;
+        $this->data = $data;
     }
 
     /**
@@ -29,7 +29,7 @@ class SendEnquiryMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Enquiry Mail',
+            subject: 'Order invoice - '.$this->data['invoice_id'],
         );
     }
 
@@ -39,7 +39,7 @@ class SendEnquiryMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            view: 'send_enquiry',
+            view: 'send_admin',
         );
     }
 

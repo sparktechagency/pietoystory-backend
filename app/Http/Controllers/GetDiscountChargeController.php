@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Quotes;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class GetDiscountChargeController extends Controller
 {
-    public function getDiscountCharge($id)
+    public function getDiscountCharge()
     {
 
-        $user = Quotes::where('user_id', $id)->latest()->first();
+        $user = Quotes::where('user_id', Auth::id())->latest()->first();
 
         $discount = null;
         $charge = null;

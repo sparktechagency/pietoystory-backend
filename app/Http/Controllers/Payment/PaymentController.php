@@ -3,15 +3,21 @@
 namespace App\Http\Controllers\Payment;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AdminMail;
+use App\Mail\SendAdminMail;
+use App\Mail\SendEnquiryMail;
 use App\Models\FreeCleaning;
 use App\Models\Quotes;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
+use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
@@ -64,7 +70,18 @@ class PaymentController extends Controller
             'amount_of_dogs'    => 'required',
             'total_area'        => 'required',
             'area_to_clean'     => 'required',
+            'cost'              => 'sometimes',
             'use_free_cleanup'  => 'sometimes|boolean',
+
+            'full_address' => 'required',
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'dogs_name' => 'sometimes',
+            'additional_comments' => 'sometimes',
+            'contact_email' => 'required',
+            'contact_number' => 'required',
+
+
         ]);
 
         if ($validator->fails()) {
@@ -74,12 +91,22 @@ class PaymentController extends Controller
             ], 422);
         }
 
-        if($request->use_free_cleanup === '1'){
 
-            $user = FreeCleaning::where('user_id',$request->user_id)->first();
+
+
+        if ($request->use_free_cleanup == '1') {
+
+            $user = FreeCleaning::where('user_id', $request->user_id)->first();
+
+            if (!$user) {
+                return response()->json([
+                    'ok' => false,
+                    'message' => 'User have no coin'
+                ], 422);
+            }
 
             // Create the order with the correct pricing
-            $order = Quotes::create([
+            $quote = Quotes::create([
                 'payment_intent_id'  => null,
                 'user_id'            => $request->user_id,
                 'zip_code'           => $request->zip_code,
@@ -93,10 +120,29 @@ class PaymentController extends Controller
 
             $user->increment('used_coins');
 
+            $data = [
+                'invoice_id' => rand(1000, 9999),
+                'quote' => $quote,
+                'full_address' => $request->full_address,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'dogs_name' => $request->dogs_name,
+                'additional_comments' => $request->additional_comments,
+                'contact_email' => $request->contact_email,
+                'contact_number' => $request->contact_number,
+
+            ];
+
+            try {
+                Mail::to('shifatghi@gmail.com')->send(new SendAdminMail($data));
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+            }
+
             return response()->json([
                 'ok'  => true,
                 'message' => 'Coin used done. Order recorded successfully',
-                'data'    => $order,
+                'data'    => $quote,
             ], 200);
         }
 
@@ -110,7 +156,7 @@ class PaymentController extends Controller
 
 
                 // Create the order with the correct pricing
-                $order = Quotes::create([
+                $quote = Quotes::create([
                     'payment_intent_id'  => $paymentIntent->id,
                     'user_id'            => $request->user_id,
                     'zip_code'           => $request->zip_code,
@@ -118,15 +164,37 @@ class PaymentController extends Controller
                     'amount_of_dogs'     => $request->amount_of_dogs,
                     'total_area'         => $request->total_area,
                     'area_to_clean'      => $request->area_to_clean,
-                    'cost'               => $paymentIntent->amount / 100,
+                    'cost'               => $request->cost / 100,
                     'status'             => 'success',
                 ]);
+
+                // send email to admin
+                // Send OTP Email
+                $data = [
+                    'invoice_id' => rand(1000, 9999),
+                    'quote' => $quote,
+                    'full_address' => $request->full_address,
+                    'first_name' => $request->first_name,
+                    'last_name' => $request->last_name,
+                    'dogs_name' => $request->dogs_name,
+                    'additional_comments' => $request->additional_comments,
+                    'contact_email' => $request->contact_email,
+                    'contact_number' => $request->contact_number,
+                ];
+
+                // return $data['quote']->zip_code;
+
+                try {
+                    Mail::to('shifatghi@gmail.com')->send(new SendAdminMail($data));
+                } catch (Exception $e) {
+                    Log::error($e->getMessage());
+                }
 
 
                 return response()->json([
                     'ok'  => true,
                     'message' => 'Payment done. order recorded successfully',
-                    'data'    => $order,
+                    'data'    => $quote,
                 ], 200);
             } else {
                 return response()->json([
@@ -143,10 +211,10 @@ class PaymentController extends Controller
         }
     }
 
-    public function getPreviousHistory($id)
+    public function getPreviousHistory()
     {
 
-        $user = User::find($id);
+        $user = User::find(Auth::id());
 
         // User Not Found
         if (!$user) {
@@ -156,7 +224,7 @@ class PaymentController extends Controller
             ], 404);
         }
 
-        $userOrderHistory = Quotes::where('user_id', $id)->latest()->get();
+        $userOrderHistory = Quotes::where('user_id', $user->id)->latest()->get();
         return response()->json([
             'ok'  => true,
             'message' => 'User previous order history list',

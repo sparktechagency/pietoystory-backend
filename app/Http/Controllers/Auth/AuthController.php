@@ -10,6 +10,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -618,9 +619,9 @@ class AuthController extends Controller
     }
 
     // user profile by id
-    public function profile($id)
+    public function profile()
     {
-        $user = User::find($id);
+        $user = User::find(Auth::id());
         if (!$user) {
             return response()->json([
                 'ok' => false,
@@ -640,7 +641,7 @@ class AuthController extends Controller
     }
 
     // user profile update by id
-    public function updateProfile(Request $request, $id)
+    public function updateProfile(Request $request)
     {
         // validation roles
         $validator = Validator::make($request->all(), [
@@ -661,7 +662,7 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user = User::find($id);
+        $user = User::find(Auth::id());
 
         // User Not Found
         if (!$user) {
@@ -690,7 +691,7 @@ class AuthController extends Controller
     }
 
     // user update your account password
-    public function updatePassword(Request $request, $id)
+    public function updatePassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'current_password' => 'required|min:6',
@@ -704,7 +705,7 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user = User::find($id);
+        $user = User::find(Auth::id());
 
         if (! $user) {
             return response()->json([
@@ -730,9 +731,9 @@ class AuthController extends Controller
     }
 
     // upload avatar
-    public function avatar(Request $request, $id)
+    public function avatar(Request $request)
     {
-        $user = User::findOrFail($id);
+        $user = User::findOrFail(Auth::id());
 
 
         $validator = Validator::make($request->all(), [
@@ -766,9 +767,9 @@ class AuthController extends Controller
     }
 
     // update profile avatar
-    public function updateAvatar(Request $request, $id)
+    public function updateAvatar(Request $request)
     {
-        $user = User::findOrFail($id);
+        $user = User::findOrFail(Auth::id());
 
         $validator = Validator::make($request->all(), [
             'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB max

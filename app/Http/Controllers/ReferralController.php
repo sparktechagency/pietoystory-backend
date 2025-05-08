@@ -6,12 +6,13 @@ use App\Models\FreeCleaning;
 use App\Models\Referral;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ReferralController extends Controller
 {
-    public function allReferredUsers($id)
+    public function allReferredUsers()
     {
-        $user = User::find($id);
+        $user = User::find(Auth::id());
 
         if (!$user) {
             return response()->json([
@@ -21,7 +22,7 @@ class ReferralController extends Controller
         }
 
         try {
-            $totalReferList = Referral::with('user')->where('parent_id', $id)->latest()->get();
+            $totalReferList = Referral::with('user')->where('parent_id', $user->id)->latest()->get();
 
             $userCoinData = FreeCleaning::where('user_id', $user->id)->first();
             $userCoinData['remaining_coins'] = $userCoinData->earn_coins - $userCoinData->used_coins;
