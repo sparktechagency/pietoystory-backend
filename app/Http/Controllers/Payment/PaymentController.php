@@ -25,11 +25,9 @@ class PaymentController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'user_id'        => 'required|numeric',
+            // 'user_id'        => 'required|numeric',
             'amount' => 'required',
-            'currency' => 'required',
-            'payment_method'  => 'required',
-            'use_free_cleanup' => 'sometimes|boolean',
+            'payment_method_types'  => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -44,9 +42,11 @@ class PaymentController extends Controller
         try {
             $paymentIntent = PaymentIntent::create([
                 'amount' => $request->amount * 100,
-                'currency' => $request->currency,
-                'payment_method' => $request->payment_method,
-                'metadata' => [],
+                'currency' => 'usd',
+                'payment_method_types' => [$request->payment_method_types],
+                'metadata' => [
+                    'user_id' => Auth::id(),
+                ],
             ]);
 
             return response()->json([
@@ -64,14 +64,14 @@ class PaymentController extends Controller
 
         $validator = Validator::make($request->all(), [
             'payment_intent_id' => 'sometimes',
-            'user_id'           => 'required',
+            // 'user_id'           => 'required',
             'zip_code'          => 'required',
             'how_often'         => 'required',
             'amount_of_dogs'    => 'required',
             'total_area'        => 'required',
             'area_to_clean'     => 'required',
             'cost'              => 'sometimes',
-            'use_free_cleanup'  => 'sometimes|boolean',
+            'use_free_cleanup'  => 'required|boolean',
 
             'full_address' => 'required',
             'first_name' => 'required',
@@ -92,11 +92,9 @@ class PaymentController extends Controller
         }
 
 
-
-
         if ($request->use_free_cleanup == '1') {
 
-            $user = FreeCleaning::where('user_id', $request->user_id)->first();
+            $user = FreeCleaning::where('user_id', Auth::id())->first();
 
             if (!$user) {
                 return response()->json([
@@ -108,7 +106,7 @@ class PaymentController extends Controller
             // Create the order with the correct pricing
             $quote = Quotes::create([
                 'payment_intent_id'  => null,
-                'user_id'            => $request->user_id,
+                'user_id'            => Auth::id(),
                 'zip_code'           => $request->zip_code,
                 'how_often'          => $request->how_often,
                 'amount_of_dogs'     => $request->amount_of_dogs,
@@ -152,19 +150,19 @@ class PaymentController extends Controller
             // Retrieve the payment intent from Stripe
             $paymentIntent = PaymentIntent::retrieve($request->payment_intent_id);
 
-            if ($paymentIntent->status === 'requires_confirmation') {
 
+            if ($paymentIntent->status === 'succeeded') {
 
                 // Create the order with the correct pricing
                 $quote = Quotes::create([
                     'payment_intent_id'  => $paymentIntent->id,
-                    'user_id'            => $request->user_id,
+                    'user_id'            => Auth::id(),
                     'zip_code'           => $request->zip_code,
                     'how_often'          => $request->how_often,
                     'amount_of_dogs'     => $request->amount_of_dogs,
                     'total_area'         => $request->total_area,
                     'area_to_clean'      => $request->area_to_clean,
-                    'cost'               => $request->cost / 100,
+                    'cost'               => $request->cost,
                     'status'             => 'success',
                 ]);
 
@@ -185,7 +183,7 @@ class PaymentController extends Controller
                 // return $data['quote']->zip_code;
 
                 try {
-                    Mail::to('shifatghi@gmail.com')->send(new SendAdminMail($data));
+                    Mail::to(['shifatghi@gmail.com', $request->contact_email])->send(new SendAdminMail($data));
                 } catch (Exception $e) {
                     Log::error($e->getMessage());
                 }

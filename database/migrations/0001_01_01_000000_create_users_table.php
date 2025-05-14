@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('phone_number')->nullable();
-            $table->text('contact')->nullable();
+            $table->text('login_type')->nullable();
             $table->text('home_address')->nullable();
             $table->string('city')->nullable();
             $table->string('state')->nullable();

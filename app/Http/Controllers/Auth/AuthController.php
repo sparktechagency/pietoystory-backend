@@ -44,6 +44,7 @@ class AuthController extends Controller
         }
 
         if (($rearUser && $rearUser->status == 'inactive')) {
+
             $rearUser->otp = $otp;
             $rearUser->otp_expires_at = $otp_expires_at;
             $rearUser->save();
@@ -112,14 +113,16 @@ class AuthController extends Controller
         $parent_referral_code = strtoupper($request->parent_referral_code);
 
         // Check
-        $parent = null;
-        if ($request->has('ref')) {
-            $parent = User::where('referral_code', $request->ref)->first();
-        } else {
-            $parent = User::where('referral_code', $request->parent_referral_code)->first();
-        }
+        // $parent = null;
+        // if ($request->has('ref')) {
+        //     $parent = User::where('referral_code', $request->ref)->first();
+        // } else {
+        //     $parent = User::where('referral_code', $request->parent_referral_code)->first();
+        // }
 
-        if ($request->has('ref') || $parent_referral_code) {
+        $parent = User::where('referral_code', $request->parent_referral_code)->first();
+
+        if ($parent_referral_code) {
             if (!$parent) {
                 return response()->json([
                     'ok' => false,
@@ -130,13 +133,14 @@ class AuthController extends Controller
                     'full_name'      => $request->full_name,
                     'email'          => $request->email,
                     'phone_number'   => $request->phone_number,
+                    'login_type'     => $request->email ? 'email' : 'phone',
                     'home_address'   => $request->location,
                     'referral_code'  => $referral_code,
                     'password'       => Hash::make($request->password),
                     'status'         => 'inactive',
                     'otp'            => $otp,
                     'otp_expires_at' => $otp_expires_at,
-                    'referred_by'    => $parent->id
+                    'referred_by'    => $parent->id,
                 ], 201);
             }
         } else {
@@ -144,6 +148,7 @@ class AuthController extends Controller
                 'full_name'      => $request->full_name,
                 'email'          => $request->email,
                 'phone_number'   => $request->phone_number,
+                'login_type'     => $request->email ? 'email' : 'phone',
                 'home_address'   => $request->location,
                 'referral_code'  => $referral_code,
                 'password'       => Hash::make($request->password),
@@ -632,6 +637,8 @@ class AuthController extends Controller
         // array
         $decodedArray = json_decode($user->dog_names, false);
         $user->dog_names = $decodedArray;
+        // $user->avatar = asset($user->avatar);
+        $user->avatar = $user->avatar ? $user->avatar : 'https://ui-avatars.com/api/?background=random&name=' . urlencode($user->full_name);
 
         return response()->json([
             'ok' => true,
@@ -645,13 +652,14 @@ class AuthController extends Controller
     {
         // validation roles
         $validator = Validator::make($request->all(), [
-            'full_name'             => 'sometimes|string|max:255',
+            'full_name'             => 'required|string|max:255',
             'email'                 => 'sometimes|string|email|max:255',
             'phone_number'          => 'sometimes|string|max:15',
-            'home_address'          => 'sometimes|string',
-            'city'                  => 'sometimes|string',
-            'state'                 => 'sometimes|string',
-            'dog_names'             => 'sometimes|array',
+            'home_address'          => 'required|string',
+            'city'                  => 'required|string',
+            'state'                 => 'required|string',
+            'dog_names'             => 'required|array',
+            'avatar' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB max
         ]);
 
         // check validation
@@ -672,12 +680,34 @@ class AuthController extends Controller
             ], 404);
         }
 
-        $user->full_name = $request->full_name;
-        if ($user->email != null) {
-            $user->contact = $request->phone_number;
-        } else {
-            $user->contact = $request->email;
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar && file_exists(public_path($user->avatar))) {
+                unlink(public_path($user->avatar));
+            }
+
+            $file      = $request->file('avatar');
+            $filename  = time() . '_' . $file->getClientOriginalName();
+            $filepath  = $file->storeAs('avatars', $filename, 'public');
+            $user->avatar = '/storage/' . $filepath;
+            $user->save();
         }
+
+
+        $user->full_name = $request->full_name;
+
+        // if ($user->email != null) {
+        //     $user->contact = $request->phone_number;
+        // } else {
+        //     $user->contact = $request->email;
+        // }
+
+        if ($user->email != null) {
+            $user->phone_number = $request->phone_number;
+        } else {
+            $user->email = $request->email;
+        }
+
+
         $user->home_address = $request->home_address;
         $user->city = $request->city;
         $user->state = $request->state;
@@ -731,86 +761,10 @@ class AuthController extends Controller
     }
 
     // upload avatar
-    public function avatar(Request $request)
-    {
-        $user = User::findOrFail(Auth::id());
-
-
-        $validator = Validator::make($request->all(), [
-            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB max
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'ok' => false,
-                'message' => $validator->errors()
-            ], 422);
-        }
-
-        if ($request->hasFile('avatar')) {
-            $file      = $request->file('avatar');
-            $filename  = time() . '_' . $file->getClientOriginalName();
-            $filepath  = $file->storeAs('avatars', $filename, 'public');
-
-            $user->avatar = '/storage/' . $filepath;
-            $user->save();
-
-            return response()->json([
-                'message' => 'Image uploaded successfully!',
-                'path'    => $user->avatar,
-            ]);
-        }
-
-        return response()->json([
-            'message' => 'No image uploaded!',
-        ], 400);
-    }
-
-    // update profile avatar
-    public function updateAvatar(Request $request)
-    {
-        $user = User::findOrFail(Auth::id());
-
-        $validator = Validator::make($request->all(), [
-            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB max
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'ok' => false,
-                'message' => $validator->errors()
-            ], 422);
-        }
-
-        if ($request->hasFile('avatar')) {
-            if ($user->avatar && file_exists(public_path($user->avatar))) {
-                unlink(public_path($user->avatar));
-            }
-
-            $file      = $request->file('avatar');
-            $filename  = time() . '_' . $file->getClientOriginalName();
-            $filepath  = $file->storeAs('avatars', $filename, 'public');
-
-            $user->avatar = '/storage/' . $filepath;
-            $user->save();
-
-            return response()->json([
-                'ok'      => true,
-                'message' => 'Avatar updated successfully!',
-                'path'    => $user->avatar,
-            ]);
-        }
-
-        return response()->json([
-            'ok' => false,
-            'message' => 'No image uploaded!',
-        ], 400);
-    }
-
-    // avatar update, unlink, resize
-    // public function updateAvatar(Request $request, $id)
+    // public function avatar(Request $request)
     // {
-    //     $user = User::findOrFail($id);
+    //     $user = User::findOrFail(Auth::id());
+
 
     //     $validator = Validator::make($request->all(), [
     //         'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB max
@@ -823,23 +777,49 @@ class AuthController extends Controller
     //         ], 422);
     //     }
 
-    //     return basename($user->avatar);
+    //     if ($request->hasFile('avatar')) {
+    //         $file      = $request->file('avatar');
+    //         $filename  = time() . '_' . $file->getClientOriginalName();
+    //         $filepath  = $file->storeAs('avatars', $filename, 'public');
+
+    //         $user->avatar = '/storage/' . $filepath;
+    //         $user->save();
+
+    //         return response()->json([
+    //             'message' => 'Image uploaded successfully!',
+    //             'path'    => $user->avatar,
+    //         ]);
+    //     }
+
+    //     return response()->json([
+    //         'message' => 'No image uploaded!',
+    //     ], 400);
+    // }
+
+    // update profile avatar
+    // public function updateAvatar(Request $request)
+    // {
+    //     $user = User::findOrFail(Auth::id());
+
+    //     $validator = Validator::make($request->all(), [
+    //         'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB max
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'ok' => false,
+    //             'message' => $validator->errors()
+    //         ], 422);
+    //     }
 
     //     if ($request->hasFile('avatar')) {
-
-    //         if ($user->avatar) {
-    //             $oldAvatarPath = storage_path('app/public/avatars/' . basename($user->avatar));
-    //             if (file_exists($oldAvatarPath)) {
-    //                 unlink($oldAvatarPath);
-    //             }
+    //         if ($user->avatar && file_exists(public_path($user->avatar))) {
+    //             unlink(public_path($user->avatar));
     //         }
 
-    //         $file     = $request->file('avatar');
-    //         $filename = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
-    //         $filepath = 'avatars/' . $filename;
-
-    //         $image = Image::make($file)->fit(300, 300);
-    //         $image->save(storage_path('app/public/' . $filepath));
+    //         $file      = $request->file('avatar');
+    //         $filename  = time() . '_' . $file->getClientOriginalName();
+    //         $filepath  = $file->storeAs('avatars', $filename, 'public');
 
     //         $user->avatar = '/storage/' . $filepath;
     //         $user->save();

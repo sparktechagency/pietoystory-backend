@@ -26,8 +26,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::post('/update-profile', [AuthController::class, 'updateProfile']);
     Route::post('/update-password', [AuthController::class, 'updatePassword']);
-    Route::post('/avatar', [AuthController::class, 'avatar']);
-    Route::post('/update-avatar', [AuthController::class, 'updateAvatar']);
+    
+    // Route::post('/avatar', [AuthController::class, 'avatar']);
+    // Route::post('/update-avatar', [AuthController::class, 'updateAvatar']);
 
     // All referrals data showing
     Route::get('/all-referred-info', [ReferralController::class, 'allReferredUsers']);
