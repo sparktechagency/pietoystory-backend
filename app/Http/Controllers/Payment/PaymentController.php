@@ -3,9 +3,7 @@
 namespace App\Http\Controllers\Payment;
 
 use App\Http\Controllers\Controller;
-use App\Mail\AdminMail;
 use App\Mail\SendAdminMail;
-use App\Mail\SendEnquiryMail;
 use App\Models\FreeCleaning;
 use App\Models\Quotes;
 use App\Models\User;
@@ -17,7 +15,6 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
-use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
@@ -64,25 +61,29 @@ class PaymentController extends Controller
 
         $validator = Validator::make($request->all(), [
             'payment_intent_id' => 'sometimes',
-            // 'user_id'           => 'required',
-            'zip_code'          => 'required',
-            'how_often'         => 'required',
-            'amount_of_dogs'    => 'required',
-            'total_area'        => 'required',
-            'area_to_clean'     => 'required',
-            'cost'              => 'sometimes',
             'use_free_cleanup'  => 'required|boolean',
+            'cost'              => 'sometimes',
 
-            'full_address' => 'required',
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'dogs_name' => 'sometimes',
+            'full_address'        => 'required',
+            'first_name'          => 'required',
+            'last_name'           => 'required',
+            'dogs_name'           => 'sometimes',
             'additional_comments' => 'sometimes',
-            'contact_email' => 'required',
-            'contact_number' => 'required',
-
-
+            'contact_email'       => 'required|email',
+            'contact_number'      => 'required',
         ]);
+
+        $validator->after(function ($validator) use ($request) {
+            if ($request->input('use_free_cleanup') == 0) {
+                if (!$request->filled('payment_intent_id')) {
+                    $validator->errors()->add('payment_intent_id', 'Payment intent ID is required when not using free cleanup.');
+                }
+
+                if (!$request->filled('cost')) {
+                    $validator->errors()->add('cost', 'Cost is required when not using free cleanup.');
+                }
+            }
+        });
 
         if ($validator->fails()) {
             return response()->json([
@@ -99,9 +100,19 @@ class PaymentController extends Controller
             if (!$user) {
                 return response()->json([
                     'ok' => false,
-                    'message' => 'User have no coin'
+                    'message' => 'User not found'
                 ], 422);
             }
+
+            if ($user->earn_coins > $user->used_coins) {
+                $user->increment('used_coins');
+            } else {
+                return response()->json([
+                    'ok' => false,
+                    'message' => 'You have used up all your coins'
+                ], 403);
+            }
+
 
             // Create the order with the correct pricing
             $quote = Quotes::create([
@@ -116,7 +127,7 @@ class PaymentController extends Controller
                 'status'             => 'used_coin',
             ]);
 
-            $user->increment('used_coins');
+
 
             $data = [
                 'invoice_id' => rand(1000, 9999),
@@ -132,7 +143,7 @@ class PaymentController extends Controller
             ];
 
             try {
-                Mail::to('shifatghi@gmail.com')->send(new SendAdminMail($data));
+                Mail::to(['shifatghi@gmail.com', $request->contact_email])->send(new SendAdminMail($data));
             } catch (Exception $e) {
                 Log::error($e->getMessage());
             }

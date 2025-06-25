@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\FreeCleaning;
 use App\Models\Referral;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ReferralController extends Controller

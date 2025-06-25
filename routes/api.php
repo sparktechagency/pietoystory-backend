@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CheckZipCodeController;
 use App\Http\Controllers\GetDiscountChargeController;
 use App\Http\Controllers\Payment\PaymentController;
+use App\Http\Controllers\QuotesController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\SendEnquiryController;
 use Illuminate\Http\Request;
@@ -20,27 +21,31 @@ Route::post('/resend-otp', [AuthController::class, 'resendOtp']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 
+// check zip code
+Route::post('/check-zip-code', [CheckZipCodeController::class, 'checkZipCode']);
+
 // private route with jwt auth
 Route::middleware('auth:api')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::post('/update-profile', [AuthController::class, 'updateProfile']);
     Route::post('/update-password', [AuthController::class, 'updatePassword']);
-    
+
     // Route::post('/avatar', [AuthController::class, 'avatar']);
     // Route::post('/update-avatar', [AuthController::class, 'updateAvatar']);
 
     // All referrals data showing
     Route::get('/all-referred-info', [ReferralController::class, 'allReferredUsers']);
 
-    // check zip code
-    Route::post('/check-zip-code', [CheckZipCodeController::class, 'checkZipCode']);
+
 
     // send enquiry (mail send to admin)
     Route::post('/send-enquiry', [SendEnquiryController::class, 'sendEnquiry']);
 
     // discount $ monthly charge
     Route::get('/discount-charge', [GetDiscountChargeController::class, 'getDiscountCharge']);
+    Route::get('/quote', [QuotesController::class, 'quote']);
 
     // create payment intent
     Route::post('/payment-intent', [PaymentController::class, 'paymentIntent']);

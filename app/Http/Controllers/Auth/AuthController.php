@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Str;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class AuthController extends Controller
 {
@@ -459,6 +460,23 @@ class AuthController extends Controller
             // 'expires_in' => $tokenExpiry->diffInSeconds(Carbon::now()),
             'user' => $user,
         ], 200);
+    }
+
+     // User Logout
+    public function logout(Request $request)
+    {
+        try {
+            JWTAuth::invalidate(JWTAuth::getToken());
+            return response()->json([
+                'status' => true,
+                'message' => 'Successfully logged out'
+            ]);
+        } catch (JWTException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to logout, please try again'
+            ], 500);
+        }
     }
 
     // forgot password

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Quotes;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class GetDiscountChargeController extends Controller
