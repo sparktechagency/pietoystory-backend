@@ -550,16 +550,21 @@ class CheckZipCodeController extends Controller
             ], 422);
         }
 
-        if (in_array($request->zip_code, $zipCodes)) {
-            return response()->json([
-                'ok' => true,
-                'message' => 'Zip code is serviceable.'
-            ]);
-        } else {
-            return response()->json([
+         return response()->json([
                 'ok' => false,
-                'message' => 'Zip code is not serviceable.'
+                'message' => 'Zip code is serviceable.'
             ], 404);
-        }
+
+        // if (in_array($request->zip_code, $zipCodes)) {
+        //     return response()->json([
+        //         'ok' => true,
+        //         'message' => 'Zip code is serviceable.'
+        //     ]);
+        // } else {
+        //     return response()->json([
+        //         'ok' => false,
+        //         'message' => 'Zip code is not serviceable.'
+        //     ], 404);
+        // }
     }
 }
