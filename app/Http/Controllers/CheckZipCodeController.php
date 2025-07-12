@@ -1094,7 +1094,9 @@ class CheckZipCodeController extends Controller
             "22195",
             "20156",
             "20168",
-            "20182"
+            "20182",
+
+            "21617", // client local zip code.
         ];
 
         $zip = $request->zip_code;
