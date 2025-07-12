@@ -16,6 +16,7 @@ Route::post('/resend-otp', [AuthController::class, 'resendOtp']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/check-zip-code', [CheckZipCodeController::class, 'checkZipCode']);
+Route::get('/quote', [QuotesController::class, 'quote']);
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
@@ -25,7 +26,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/all-referred-info', [ReferralController::class, 'allReferredUsers']);
     Route::post('/send-enquiry', [SendEnquiryController::class, 'sendEnquiry']);
     Route::get('/discount-charge', [GetDiscountChargeController::class, 'getDiscountCharge']);
-    Route::get('/quote', [QuotesController::class, 'quote']);
+    
     Route::post('/payment-intent', [PaymentController::class, 'paymentIntent']);
     Route::post('/payment-success', [PaymentController::class, 'paymentSuccess']);
     Route::get('/get-previous-history', [PaymentController::class, 'getPreviousHistory']);
