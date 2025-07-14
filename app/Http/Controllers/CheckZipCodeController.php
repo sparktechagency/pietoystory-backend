@@ -24,7 +24,7 @@ class CheckZipCodeController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Get all states',
-            'data' => State::all()->pluck("state_name")->toArray()
+            'data' => State::select('id','state_name')->get()
         ]);
     }
 
@@ -35,7 +35,7 @@ class CheckZipCodeController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'All counties in '.State::where('id',$stateId)->first()->state_name,
-            'data' => County::where('state_id', $stateId)->pluck('county_name')->toArray()
+            'data' => County::where('state_id', $stateId)->select('id','county_name')->get()
         ]);
     }
 }
