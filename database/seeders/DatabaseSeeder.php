@@ -3,9 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\County;
+use App\Models\State;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -21,13 +23,31 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@gmail.com',
         // ]);
 
-        $county = County::create(['state' => 'Maryland', 'county' => 'Anne Arundel']);
+        // $state = State::create(['state' => 'Maryland']);
+        // $county = County::create([
+        //     'county' => 'Maryland',
+        // ]);
 
-        $county->zipCodes()->createMany([
-            ['zip_code' => '21122'],
-            ['zip_code' => '21061'],
-            ['zip_code' => '21401'],
-            // ...more zips
-        ]);
+        // $county->zipCodes()->createMany([
+        //     ['zip_code' => '21122'],
+        //     ['zip_code' => '21061'],
+        //     ['zip_code' => '21401'],
+        //     // ...more zips
+        // ]);
+
+        // $state = DB::table('states')->insertGetId([
+        //     'state_name' => 'Maryland',
+        //     'created_at' => now(),
+        //     'updated_at' => now()
+        // ]);
+
+        // DB::table('counties')->insert([
+        //     'state_id' => $state,
+        //     'county_name' => 'Anne Arundel',
+        //     'created_at' => now(),
+        //     'updated_at' => now()
+        // ]);
+
+
     }
 }

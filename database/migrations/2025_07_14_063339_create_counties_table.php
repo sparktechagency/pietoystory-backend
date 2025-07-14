@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -12,8 +13,8 @@ return new class extends Migration {
     {
         Schema::create('counties', function (Blueprint $table) {
             $table->id();
-            $table->string('state'); // Maryland, Delaware, etc
-            $table->string('county');  // e.g., Anne Arundel
+            $table->foreignId('state_id')->constrained('states')->cascadeOnDelete();
+            $table->string('county_name');
             $table->timestamps();
         });
     }
