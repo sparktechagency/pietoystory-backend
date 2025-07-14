@@ -33,7 +33,7 @@ class AuthController extends Controller
         }
 
         // create otp
-        $otp            = rand(100000, 999999);
+        $otp = rand(100000, 999999);
         $otp_expires_at = Carbon::now()->addMinutes(10);
 
         // rear case handle
@@ -69,7 +69,7 @@ class AuthController extends Controller
                 }
             } else {
                 try {
-                    $basic  = new \Vonage\Client\Credentials\Basic(env('VONAGE_API_KEY'), env('VONAGE_API_SECRET'));
+                    $basic = new \Vonage\Client\Credentials\Basic(env('VONAGE_API_KEY'), env('VONAGE_API_SECRET'));
                     $client = new \Vonage\Client($basic);
 
                     $client->sms()->send(new \Vonage\SMS\Message\SMS($request->phone_number, env('VONAGE_SMS_FROM'), $phone_otp));
@@ -91,19 +91,19 @@ class AuthController extends Controller
 
         // validation roles
         $validator = Validator::make($request->all(), [
-            'full_name'             => 'required|string|max:255',
-            'email'                 => 'sometimes|string|email|max:255|unique:users,email',
-            'phone_number'          => 'sometimes|string|max:15|unique:users,phone_number',
-            'location'              => 'sometimes|string',
-            'parent_referral_code'  => 'sometimes|string|max:8',
-            'password'              => 'required|string|min:6|confirmed',
+            'full_name' => 'required|string|max:255',
+            'email' => 'sometimes|string|email|max:255|unique:users,email',
+            'phone_number' => 'sometimes|string|max:15|unique:users,phone_number',
+            'location' => 'sometimes|string',
+            'parent_referral_code' => 'sometimes|string|max:8',
+            'password' => 'required|string|min:6|confirmed',
         ]);
 
         // check validation
         if ($validator->fails()) {
             return response()->json([
                 'ok' => false,
-                'message'   => $validator->errors()
+                'message' => $validator->errors()
             ], 422);
         }
 
@@ -131,30 +131,30 @@ class AuthController extends Controller
                 ]);
             } else {
                 $user = User::create([
-                    'full_name'      => $request->full_name,
-                    'email'          => $request->email,
-                    'phone_number'   => $request->phone_number,
-                    'login_type'     => $request->email ? 'email' : 'phone',
-                    'home_address'   => $request->location,
-                    'referral_code'  => $referral_code,
-                    'password'       => Hash::make($request->password),
-                    'status'         => 'inactive',
-                    'otp'            => $otp,
+                    'full_name' => $request->full_name,
+                    'email' => $request->email,
+                    'phone_number' => $request->phone_number,
+                    'login_type' => $request->email ? 'email' : 'phone',
+                    'home_address' => $request->location,
+                    'referral_code' => $referral_code,
+                    'password' => Hash::make($request->password),
+                    'status' => 'inactive',
+                    'otp' => $otp,
                     'otp_expires_at' => $otp_expires_at,
-                    'referred_by'    => $parent->id,
+                    'referred_by' => $parent->id,
                 ], 201);
             }
         } else {
             $user = User::create([
-                'full_name'      => $request->full_name,
-                'email'          => $request->email,
-                'phone_number'   => $request->phone_number,
-                'login_type'     => $request->email ? 'email' : 'phone',
-                'home_address'   => $request->location,
-                'referral_code'  => $referral_code,
-                'password'       => Hash::make($request->password),
-                'status'         => 'inactive',
-                'otp'            => $otp,
+                'full_name' => $request->full_name,
+                'email' => $request->email,
+                'phone_number' => $request->phone_number,
+                'login_type' => $request->email ? 'email' : 'phone',
+                'home_address' => $request->location,
+                'referral_code' => $referral_code,
+                'password' => Hash::make($request->password),
+                'status' => 'inactive',
+                'otp' => $otp,
                 'otp_expires_at' => $otp_expires_at,
             ], 201);
         }
@@ -178,7 +178,7 @@ class AuthController extends Controller
             }
         } else {
             try {
-                $basic  = new \Vonage\Client\Credentials\Basic(env('VONAGE_API_KEY'), env('VONAGE_API_SECRET'));
+                $basic = new \Vonage\Client\Credentials\Basic(env('VONAGE_API_KEY'), env('VONAGE_API_SECRET'));
                 $client = new \Vonage\Client($basic);
 
                 $client->sms()->send(new \Vonage\SMS\Message\SMS($request->phone_number, env('VONAGE_SMS_FROM'), $phone_otp));
@@ -218,7 +218,7 @@ class AuthController extends Controller
         if (!$user) {
             return response()->json([
                 'ok' => false,
-                'message'  => 'Invalid OTP'
+                'message' => 'Invalid OTP'
             ], 401);
         }
 
@@ -226,10 +226,10 @@ class AuthController extends Controller
         if ($user->otp_expires_at > Carbon::now()) {
 
             // user status update
-            $user->otp                = null;
-            $user->otp_expires_at     = null;
-            $user->otp_verified_at    = Carbon::now();
-            $user->status             = 'active';
+            $user->otp = null;
+            $user->otp_expires_at = null;
+            $user->otp_verified_at = Carbon::now();
+            $user->status = 'active';
             $user->save();
 
             if ($user->referred_by != null) {
@@ -270,7 +270,7 @@ class AuthController extends Controller
 
             // json response
             return response()->json([
-                'ok'  => true,
+                'ok' => true,
                 'message' => $user->email ? 'Email verified successfully' : 'Phone number verified successfully',
                 'access_token' => $token,
                 'token_type' => 'bearer',
@@ -282,7 +282,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'ok' => false,
-                'message'  => 'Invalid OTP'
+                'message' => 'Invalid OTP'
             ], 401);
         }
     }
@@ -292,15 +292,15 @@ class AuthController extends Controller
     {
         // validation roles
         $validator = Validator::make($request->all(), [
-            'email'                 => 'sometimes|string|email',
-            'phone_number'          => 'sometimes|string|max:15',
+            'email' => 'sometimes|string|email',
+            'phone_number' => 'sometimes|string|max:15',
         ]);
 
         // check validation
         if ($validator->fails()) {
             return response()->json([
                 'ok' => false,
-                'message'   => $validator->errors()
+                'message' => $validator->errors()
             ], 422);
         }
 
@@ -324,7 +324,7 @@ class AuthController extends Controller
             }
         }
 
-        $otp            = rand(100000, 999999);
+        $otp = rand(100000, 999999);
         $otp_expires_at = Carbon::now()->addMinutes(10);
 
         // DB::table('users')->updateOrInsert(
@@ -339,7 +339,7 @@ class AuthController extends Controller
             $user->save();
         } else {
             return response()->json([
-                'ok'  => false,
+                'ok' => false,
                 'message' => 'User already verified.'
             ], 200);
         }
@@ -363,7 +363,7 @@ class AuthController extends Controller
             }
         } else {
             try {
-                $basic  = new \Vonage\Client\Credentials\Basic(env('VONAGE_API_KEY'), env('VONAGE_API_SECRET'));
+                $basic = new \Vonage\Client\Credentials\Basic(env('VONAGE_API_KEY'), env('VONAGE_API_SECRET'));
                 $client = new \Vonage\Client($basic);
 
                 $client->sms()->send(new \Vonage\SMS\Message\SMS($request->phone_number, env('VONAGE_SMS_FROM'), $phone_otp));
@@ -377,7 +377,7 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'ok'  => true,
+            'ok' => true,
             'message' => $user->email ? 'OTP resend to your email' : 'OTP resend to your phone number'
         ], 200);
     }
@@ -462,7 +462,7 @@ class AuthController extends Controller
         ], 200);
     }
 
-     // User Logout
+    // User Logout
     public function logout(Request $request)
     {
         try {
@@ -532,9 +532,9 @@ class AuthController extends Controller
 
         if ($user->status == 'active') {
             $user->otp_verified_at = null;
-            $user->otp             = $otp;
-            $user->otp_expires_at  = $otp_expires_at;
-            $user->status          = 'inactive';
+            $user->otp = $otp;
+            $user->otp_expires_at = $otp_expires_at;
+            $user->status = 'inactive';
             $user->save();
         } else {
             return response()->json([
@@ -562,7 +562,7 @@ class AuthController extends Controller
             }
         } else {
             try {
-                $basic  = new \Vonage\Client\Credentials\Basic(env('VONAGE_API_KEY'), env('VONAGE_API_SECRET'));
+                $basic = new \Vonage\Client\Credentials\Basic(env('VONAGE_API_KEY'), env('VONAGE_API_SECRET'));
                 $client = new \Vonage\Client($basic);
 
                 $client->sms()->send(new \Vonage\SMS\Message\SMS($request->phone_number, env('VONAGE_SMS_FROM'), $phone_otp));
@@ -576,7 +576,7 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'ok'  => true,
+            'ok' => true,
             'message' => $user->email ? 'OTP send to your email' : 'OTP send to your phone number'
         ], 200);
     }
@@ -624,7 +624,8 @@ class AuthController extends Controller
                 'ok' => false,
                 'message' => 'User not found',
             ], 404);
-        };
+        }
+        ;
 
         if ($user->status == 'active') {
             $user->password = Hash::make($request->password);
@@ -670,13 +671,13 @@ class AuthController extends Controller
     {
         // validation roles
         $validator = Validator::make($request->all(), [
-            'full_name'             => 'required|string|max:255',
-            'email'                 => 'sometimes|string|email|max:255',
-            'phone_number'          => 'sometimes|string|max:15',
-            'home_address'          => 'required|string',
-            'city'                  => 'required|string',
-            'state'                 => 'required|string',
-            'dog_names'             => 'required|array',
+            'full_name' => 'required|string|max:255',
+            'email' => 'sometimes|string|email|max:255',
+            'phone_number' => 'sometimes|string|max:15',
+            'home_address' => 'required|string',
+            'city' => 'required|string',
+            'state' => 'required|string',
+            'dog_names' => 'required|array',
             'avatar' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB max
         ]);
 
@@ -684,7 +685,7 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'ok' => false,
-                'message'   => $validator->errors()
+                'message' => $validator->errors()
             ], 422);
         }
 
@@ -703,9 +704,9 @@ class AuthController extends Controller
                 unlink(public_path($user->avatar));
             }
 
-            $file      = $request->file('avatar');
-            $filename  = time() . '_' . $file->getClientOriginalName();
-            $filepath  = $file->storeAs('avatars', $filename, 'public');
+            $file = $request->file('avatar');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $filepath = $file->storeAs('avatars', $filename, 'public');
             $user->avatar = '/storage/' . $filepath;
             $user->save();
         }
@@ -743,7 +744,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'current_password' => 'required|min:6',
-            'password'         => 'required|string|min:6|confirmed'
+            'password' => 'required|string|min:6|confirmed'
         ]);
 
         if ($validator->fails()) {
@@ -755,7 +756,7 @@ class AuthController extends Controller
 
         $user = User::find(Auth::id());
 
-        if (! $user) {
+        if (!$user) {
             return response()->json([
                 'ok' => false,
                 'message' => 'User not found'
