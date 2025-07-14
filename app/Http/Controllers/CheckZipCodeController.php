@@ -9,23 +9,33 @@ use Illuminate\Http\Request;
 class CheckZipCodeController extends Controller
 {
 
-    public function checkZipCode(Request $request){
+    public function checkZipCode(Request $request)
+    {
         $zipCode = $request->get("zip_code");
 
         return response()->json([
             'status' => true,
-            'message'=> 'Not working',
+            'message' => 'Not working',
         ]);
     }
 
     public function getStates()
     {
-        return response()->json(State::all()->pluck("state_name")->toArray());
+        return response()->json([
+            'status' => true,
+            'message' => 'Get all states',
+            'data' => State::all()->pluck("state_name")->toArray()
+        ]);
     }
 
     public function getCounties(Request $request)
     {
         $stateId = $request->query('state_id');
-        return response()->json(County::where('state_id', $stateId)->pluck('county_name')->toArray());
+
+        return response()->json([
+            'status' => true,
+            'message' => 'All counties in '.State::where('id',$stateId)->first()->state_name,
+            'data' => County::where('state_id', $stateId)->pluck('county_name')->toArray()
+        ]);
     }
 }
