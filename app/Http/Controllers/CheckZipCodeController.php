@@ -577,7 +577,6 @@ class CheckZipCodeController extends Controller
                 'message' => 'Service available in this ZIP code.'
             ], 200);
         }
-
     }
 
     public function getStates()
