@@ -595,7 +595,7 @@ class CheckZipCodeController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'All counties in '.State::where('id',$stateId)->first()->state_name,
-            'data' => County::where('state_id', $stateId)->select('id','county_name')->get()
+            'data' => County::where('state_id', $stateId)->select('id','county_name')->get() 
         ]);
     }
 }
