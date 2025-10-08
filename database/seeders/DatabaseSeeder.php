@@ -23,6 +23,16 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@gmail.com',
         // ]);
 
+
+        User::create([
+            'full_name' => 'User one',
+            'email' => 'user.one@gmail.com',
+            'email_verified_at' => now(),
+            'password' => bcrypt('123456'),
+            'status' => 'active',
+        ]);
+
+
         // $state = State::create(['state' => 'Maryland']);
         // $county = County::create([
         //     'county' => 'Maryland',
