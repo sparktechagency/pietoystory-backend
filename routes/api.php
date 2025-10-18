@@ -22,6 +22,8 @@ Route::get('/get-counties', [CheckZipCodeController::class, 'getCounties']);
 
 Route::get('/quote', [QuotesController::class, 'quote']);
 
+Route::post('/send-enquiry', [SendEnquiryController::class, 'sendEnquiry']);
+
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
@@ -29,7 +31,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/update-profile', [AuthController::class, 'updateProfile']);
     Route::post('/update-password', [AuthController::class, 'updatePassword']);
     Route::get('/all-referred-info', [ReferralController::class, 'allReferredUsers']);
-    Route::post('/send-enquiry', [SendEnquiryController::class, 'sendEnquiry']);
+    
     Route::get('/discount-charge', [GetDiscountChargeController::class, 'getDiscountCharge']);
     
     Route::post('/payment-intent', [PaymentController::class, 'paymentIntent']);
