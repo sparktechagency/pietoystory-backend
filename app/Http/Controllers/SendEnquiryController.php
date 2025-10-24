@@ -38,7 +38,7 @@ class SendEnquiryController extends Controller
 
 
         try {
-            Mail::to('clearpathpetwasteinfo@gmail.com')->send(new SendEnquiryMail($data));
+            Mail::to('shifatghi@gmail.com')->send(new SendEnquiryMail($data));
         } catch (Exception $e) {
             Log::error($e->getMessage());
         }
