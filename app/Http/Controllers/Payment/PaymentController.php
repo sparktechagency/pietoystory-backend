@@ -143,7 +143,7 @@ class PaymentController extends Controller
             ];
 
             try {
-                Mail::to(['shifatghi@gmail.com', $request->contact_email])->send(new SendAdminMail($data));
+                Mail::to(['clearpathpetwasteinfo@gmail.com', $request->contact_email])->send(new SendAdminMail($data));
             } catch (Exception $e) {
                 Log::error($e->getMessage());
             }
@@ -194,7 +194,7 @@ class PaymentController extends Controller
                 // return $data['quote']->zip_code;
 
                 try {
-                    Mail::to(['shifatghi@gmail.com', $request->contact_email])->send(new SendAdminMail($data));
+                    Mail::to(['clearpathpetwasteinfo@gmail.com', $request->contact_email])->send(new SendAdminMail($data));
                 } catch (Exception $e) {
                     Log::error($e->getMessage());
                 }
