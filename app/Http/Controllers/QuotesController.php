@@ -15,12 +15,12 @@ class QuotesController extends Controller
 
         // validation roles
         $validator = Validator::make($request->all(), [
-            'zip_code'          => 'required|digits:5',
-            'how_often'         => 'required|numeric|in:1,2,3,4',
-            'how_many_dogs'     => 'required|numeric|in:1,2,3,4',
+            'zip_code'          => 'nullable|digits:5',
+            'how_often'         => 'nullable|numeric|in:1,2,3,4',
+            'how_many_dogs'     => 'nullable|numeric|in:1,2,3,4',
             // 'total_area_size'   => 'required|numeric|min:1|max:32670',
-            'total_area_size'   => 'required|numeric|in:1,2,3,4',
-            'area_to_clean'     => 'required|string|max:255',
+            'total_area_size'   => 'nullable|numeric|in:1,2,3,4',
+            'area_to_clean'     => 'nullable|string|max:255',
         ], [
             'zip_code.digits'         => 'Zip code must be exactly 5 digits.',
             'how_often.in'            => 'Invalid value for how often. Allowed: 1, 2, 3, 4.',
@@ -62,9 +62,9 @@ class QuotesController extends Controller
         }
 
         $total_area_size = $request->total_area_size;
-        $how_often  = $request->how_often;
-        $dogs  = $request->how_many_dogs;
-        $area_to_clean  = $request->area_to_clean;
+        $how_often  = $request->how_often ?? 1;
+        $dogs  = $request->how_many_dogs ?? 1;
+        $area_to_clean  = $request->area_to_clean??1;
         $zip_code  = $request->zip_code;
         $cost = 0;
 
