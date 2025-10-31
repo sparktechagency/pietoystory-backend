@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
             'password' => bcrypt('123456'),
             'status' => 'active',
-            'parent_referral_code' => strtoupper(Str::random(8)),
+            'referral_code' => strtoupper(Str::random(8)),
         ]);
 
         User::create([
@@ -40,7 +40,7 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
             'password' => bcrypt('123456'),
             'status' => 'active',
-            'parent_referral_code' => strtoupper(Str::random(8)),
+            'referral_code' => strtoupper(Str::random(8)),
         ]);
 
 
