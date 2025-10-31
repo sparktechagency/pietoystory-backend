@@ -8,6 +8,7 @@ use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -30,6 +31,16 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
             'password' => bcrypt('123456'),
             'status' => 'active',
+            'parent_referral_code' => strtoupper(Str::random(8)),
+        ]);
+
+        User::create([
+            'full_name' => 'User two',
+            'email' => 'user.two@gmail.com',
+            'email_verified_at' => now(),
+            'password' => bcrypt('123456'),
+            'status' => 'active',
+            'parent_referral_code' => strtoupper(Str::random(8)),
         ]);
 
 

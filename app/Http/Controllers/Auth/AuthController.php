@@ -142,7 +142,7 @@ class AuthController extends Controller
                     'otp' => $otp,
                     'otp_expires_at' => $otp_expires_at,
                     'referred_by' => $parent->id,
-                ], 201);
+                ]);
             }
         } else {
             $user = User::create([
@@ -156,7 +156,7 @@ class AuthController extends Controller
                 'status' => 'inactive',
                 'otp' => $otp,
                 'otp_expires_at' => $otp_expires_at,
-            ], 201);
+            ]);
         }
 
         // Send OTP Email
