@@ -15,26 +15,26 @@ class QuotesController extends Controller
 
         // validation roles
         $validator = Validator::make($request->all(), [
-            'zip_code'          => 'nullable|digits:5',
-            'how_often'         => 'nullable|numeric|in:1,2,3,4',
-            'how_many_dogs'     => 'nullable|numeric|in:1,2,3,4',
+            'zip_code' => 'nullable|digits:5',
+            'how_often' => 'nullable|numeric|in:1,2,3,4',
+            'how_many_dogs' => 'nullable|numeric|in:1,2,3,4',
             // 'total_area_size'   => 'required|numeric|min:1|max:32670',
-            'total_area_size'   => 'nullable|numeric|in:1,2,3,4',
-            'area_to_clean'     => 'nullable|string|max:255',
+            'total_area_size' => 'nullable|numeric|in:1,2,3,4',
+            'area_to_clean' => 'nullable|string|max:255',
         ], [
-            'zip_code.digits'         => 'Zip code must be exactly 5 digits.',
-            'how_often.in'            => 'Invalid value for how often. Allowed: 1, 2, 3, 4.',
-            'how_many_dogs.in'        => 'You can select 1 to 4 dogs only.',
-            'total_area_size.in'      => 'Invalid value for total area size. Allowed: 1, 2, 3, 4.',
-            'total_area_size.min'     => 'Total area size must be greater than 0.',
-            'total_area_size.max'     => 'Total area size must not be greater than 32,670.',
+            'zip_code.digits' => 'Zip code must be exactly 5 digits.',
+            'how_often.in' => 'Invalid value for how often. Allowed: 1, 2, 3, 4.',
+            'how_many_dogs.in' => 'You can select 1 to 4 dogs only.',
+            'total_area_size.in' => 'Invalid value for total area size. Allowed: 1, 2, 3, 4.',
+            'total_area_size.min' => 'Total area size must be greater than 0.',
+            'total_area_size.max' => 'Total area size must not be greater than 32,670.',
         ]);
 
         // check validation
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'message'   => $validator->errors()
+                'message' => $validator->errors()
             ], 422);
         }
 
@@ -46,26 +46,31 @@ class QuotesController extends Controller
 
 
         if (!$user) {
-            $discount = true;
-            $charge = true;
+            // $discount = true;
+            // $charge = true;
+            $discount = false;
+            $charge = false;
         } else {
-            if ($user) {
-                $discount = false;
-                $lastOrderMonth = Carbon::parse($user->created_at);
-                $currentMonth = Carbon::parse(now()); //->addMonth(1));
-                if ($lastOrderMonth->format('m') == $currentMonth->format('m')) {
-                    $charge = false;
-                } else {
-                    $charge = true;
-                }
-            }
+            // if ($user) {
+            // $discount = false;
+            $discount = false;
+            $charge = false;
+            // $lastOrderMonth = Carbon::parse($user->created_at);
+            // $currentMonth = Carbon::parse(now()); //->addMonth(1));
+            // if ($lastOrderMonth->format('m') == $currentMonth->format('m')) {
+            //     $charge = false;
+            // } else {
+            //     $charge = true;
+            // }
+            // }
         }
+        
 
         $total_area_size = $request->total_area_size;
-        $how_often  = $request->how_often ?? 1;
-        $dogs  = $request->how_many_dogs ?? 1;
-        $area_to_clean  = $request->area_to_clean??1;
-        $zip_code  = $request->zip_code;
+        $how_often = $request->how_often ?? 1;
+        $dogs = $request->how_many_dogs ?? 1;
+        $area_to_clean = $request->area_to_clean ?? 1;
+        $zip_code = $request->zip_code;
         $cost = 0;
 
         // if ($total_area_size > 0 && $total_area_size < 8712) {
@@ -460,7 +465,7 @@ class QuotesController extends Controller
         } elseif ($how_often == 2) {
             $how_often = 'Ones a week';
         } elseif ($how_often == 3) {
-            $how_often = 'By weekly';
+            $how_often = 'Bi-weekly';
         } elseif ($how_often == 4) {
             $how_often = 'Ones a month';
         }

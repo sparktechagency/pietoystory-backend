@@ -37,4 +37,6 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/payment-intent', [PaymentController::class, 'paymentIntent']);
     Route::post('/payment-success', [PaymentController::class, 'paymentSuccess']);
     Route::get('/get-previous-history', [PaymentController::class, 'getPreviousHistory']);
+
+    // Route::get('/quote', [QuotesController::class, 'quote']);
 });

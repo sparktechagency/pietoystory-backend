@@ -162,7 +162,7 @@ class PaymentController extends Controller
             $paymentIntent = PaymentIntent::retrieve($request->payment_intent_id);
 
 
-            if ($paymentIntent->status === 'succeeded') {
+            if ($paymentIntent->status === 'requires_payment_method') {
 
                 // Create the order with the correct pricing
                 $quote = Quotes::create([
