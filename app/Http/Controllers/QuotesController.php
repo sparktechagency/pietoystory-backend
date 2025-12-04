@@ -17,14 +17,14 @@ class QuotesController extends Controller
         // ----------------------------
         $validator = Validator::make($request->all(), [
             'zip_code' => 'nullable|digits:5',
-            'how_often' => 'nullable|numeric|in:1,2,3,4',
-            'how_many_dogs' => 'nullable|numeric|in:1,2,3,4',
+            'how_often' => 'nullable|numeric|in:0,1,2,3',
+            'how_many_dogs' => 'nullable|numeric|in:0,1,2,3',
             'total_area_size' => 'nullable|numeric|in:1,2,3,4',
             'area_to_clean' => 'nullable|string|max:255',
         ], [
             'zip_code.digits' => 'Zip code must be exactly 5 digits.',
-            'how_often.in' => 'Invalid: Allowed 1 to 4.',
-            'how_many_dogs.in' => 'Dogs allowed: 1 to 4.',
+            'how_often.in' => 'Invalid: Allowed 0 to 3.',
+            'how_many_dogs.in' => 'Dogs allowed: 0 to 3.',
             'total_area_size.in' => 'Invalid area value: allowed 1 to 4.',
         ]);
 
@@ -38,8 +38,8 @@ class QuotesController extends Controller
         // Inputs
         $userId = $request->user_id;
         $zip_code = $request->zip_code;
-        $how_often = $request->how_often ?? 1;
-        $dogs = $request->how_many_dogs ?? 1;
+        $how_often = $request->how_often + 1 ?? 1;
+        $dogs = $request->how_many_dogs + 1 ?? 1;
         $total_area = $request->total_area_size ?? 1;
         $area_to_clean = $request->area_to_clean;
 
