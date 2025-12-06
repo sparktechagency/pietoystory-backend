@@ -13,7 +13,6 @@ class SendEnquiryController extends Controller
 {
     public function sendEnquiry(Request $request)
     {
-
          // validation roles
          $validator = Validator::make($request->all(), [
             'full_name'             => 'required|string|max:255',
@@ -28,7 +27,6 @@ class SendEnquiryController extends Controller
                 'message'   => $validator->errors()
             ], 422);
         }
-
 
         $data = [
             'full_name' => $request->full_name,

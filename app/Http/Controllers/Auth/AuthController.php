@@ -21,7 +21,6 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 class AuthController extends Controller
 {
-    // user register
     public function register(Request $request)
     {
         // email or phone number must be given for user
@@ -197,8 +196,6 @@ class AuthController extends Controller
             'message' => $request->email ? 'Register successfully, OTP send you email, please verify your account' : 'Register successfully, OTP send you phone number, please verify your account',
         ], 201);
     }
-
-    // verify otp
     public function verifyOtp(Request $request)
     {
 
@@ -286,8 +283,6 @@ class AuthController extends Controller
             ], 401);
         }
     }
-
-    // resend otp
     public function resendOtp(Request $request)
     {
         // validation roles
@@ -381,8 +376,6 @@ class AuthController extends Controller
             'message' => $user->email ? 'OTP resend to your email' : 'OTP resend to your phone number'
         ], 200);
     }
-
-    // user login
     public function login(Request $request)
     {
         // Validation Rules
@@ -461,8 +454,6 @@ class AuthController extends Controller
             'user' => $user,
         ], 200);
     }
-
-    // User Logout
     public function logout(Request $request)
     {
         try {
@@ -478,8 +469,6 @@ class AuthController extends Controller
             ], 500);
         }
     }
-
-    // forgot password
     public function forgotPassword(Request $request)
     {
         // Validation Rules
@@ -580,8 +569,6 @@ class AuthController extends Controller
             'message' => $user->email ? 'OTP send to your email' : 'OTP send to your phone number'
         ], 200);
     }
-
-    // after forgot password then change password
     public function changePassword(Request $request)
     {
 
@@ -641,8 +628,6 @@ class AuthController extends Controller
             ]);
         }
     }
-
-    // user profile by id
     public function profile()
     {
         $user = User::find(Auth::id());
@@ -665,8 +650,6 @@ class AuthController extends Controller
             'data' => $user
         ], 200);
     }
-
-    // user profile update by id
     public function updateProfile(Request $request)
     {
         // validation roles
@@ -678,7 +661,7 @@ class AuthController extends Controller
             'city' => 'required|string',
             'state' => 'required|string',
             'dog_names' => 'required|array',
-            'avatar' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB max
+            'avatar' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:20480', // 20MB max
         ]);
 
         // check validation
@@ -738,8 +721,6 @@ class AuthController extends Controller
             'message' => 'Profile updated successfully!',
         ]);
     }
-
-    // user update your account password
     public function updatePassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -778,81 +759,4 @@ class AuthController extends Controller
             ]);
         }
     }
-
-    // upload avatar
-    // public function avatar(Request $request)
-    // {
-    //     $user = User::findOrFail(Auth::id());
-
-
-    //     $validator = Validator::make($request->all(), [
-    //         'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB max
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return response()->json([
-    //             'ok' => false,
-    //             'message' => $validator->errors()
-    //         ], 422);
-    //     }
-
-    //     if ($request->hasFile('avatar')) {
-    //         $file      = $request->file('avatar');
-    //         $filename  = time() . '_' . $file->getClientOriginalName();
-    //         $filepath  = $file->storeAs('avatars', $filename, 'public');
-
-    //         $user->avatar = '/storage/' . $filepath;
-    //         $user->save();
-
-    //         return response()->json([
-    //             'message' => 'Image uploaded successfully!',
-    //             'path'    => $user->avatar,
-    //         ]);
-    //     }
-
-    //     return response()->json([
-    //         'message' => 'No image uploaded!',
-    //     ], 400);
-    // }
-
-    // update profile avatar
-    // public function updateAvatar(Request $request)
-    // {
-    //     $user = User::findOrFail(Auth::id());
-
-    //     $validator = Validator::make($request->all(), [
-    //         'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB max
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return response()->json([
-    //             'ok' => false,
-    //             'message' => $validator->errors()
-    //         ], 422);
-    //     }
-
-    //     if ($request->hasFile('avatar')) {
-    //         if ($user->avatar && file_exists(public_path($user->avatar))) {
-    //             unlink(public_path($user->avatar));
-    //         }
-
-    //         $file      = $request->file('avatar');
-    //         $filename  = time() . '_' . $file->getClientOriginalName();
-    //         $filepath  = $file->storeAs('avatars', $filename, 'public');
-
-    //         $user->avatar = '/storage/' . $filepath;
-    //         $user->save();
-
-    //         return response()->json([
-    //             'ok'      => true,
-    //             'message' => 'Avatar updated successfully!',
-    //             'path'    => $user->avatar,
-    //         ]);
-    //     }
-
-    //     return response()->json([
-    //         'ok' => false,
-    //         'message' => 'No image uploaded!',
-    //     ], 400);
-    // }
 }

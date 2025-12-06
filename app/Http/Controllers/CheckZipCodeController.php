@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Validator;
 
 class CheckZipCodeController extends Controller
 {
-
     public function checkZipCode(Request $request)
     {
         // $zipCode = $request->get("zip_code");
@@ -578,7 +577,6 @@ class CheckZipCodeController extends Controller
             ], 200);
         }
     }
-
     public function getStates()
     {
         return response()->json([
@@ -587,7 +585,6 @@ class CheckZipCodeController extends Controller
             'data' => State::select('id','state_name')->get()
         ]);
     }
-
     public function getCounties(Request $request)
     {
         $stateId = $request->query('state_id');
