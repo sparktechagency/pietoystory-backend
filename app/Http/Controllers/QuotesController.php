@@ -46,7 +46,7 @@ class QuotesController extends Controller
         // ----------------------------
         // Discount & Charge Logic
         // ----------------------------
-        $lastQuote = Quotes::where('user_id', $userId)->latest()->first();
+        $lastQuote = Quotes::where('user_id', $userId)->where('payment_intent_id', '!=', null)->latest()->first();
 
         $discount = $lastQuote ? false : true;
         $charge = $lastQuote ? false : true;
