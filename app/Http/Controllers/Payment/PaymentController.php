@@ -122,7 +122,7 @@ class PaymentController extends Controller
                 'amount_of_dogs'     => $request->amount_of_dogs,
                 'total_area'         => $request->total_area,
                 'area_to_clean'      => $request->area_to_clean,
-                'cost'               => null,
+                'cost'               => 0,
                 'status'             => 'used_coin',
             ]);
 
