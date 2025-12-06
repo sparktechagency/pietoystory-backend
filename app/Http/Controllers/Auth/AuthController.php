@@ -7,6 +7,7 @@ use App\Mail\VerifyOTPMail;
 use App\Models\FreeCleaning;
 use App\Models\Referral;
 use App\Models\User;
+use App\Services\ImageUploadService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Str;
@@ -638,11 +640,9 @@ class AuthController extends Controller
             ], 404);
         }
 
-        // array
         $decodedArray = json_decode($user->dog_names, false);
         $user->dog_names = $decodedArray;
-        // $user->avatar = asset($user->avatar);
-        $user->avatar = $user->avatar ? $user->avatar : 'https://ui-avatars.com/api/?background=random&name=' . urlencode($user->full_name);
+        $user->avatar = $user->avatar ? asset($user->avatar) : 'https://ui-avatars.com/api/?background=random&name=' . urlencode($user->full_name);
 
         return response()->json([
             'ok' => true,
@@ -650,9 +650,8 @@ class AuthController extends Controller
             'data' => $user
         ], 200);
     }
-    public function updateProfile(Request $request)
+    public function updateProfile(Request $request, ImageUploadService $imageUploadService)
     {
-        // validation roles
         $validator = Validator::make($request->all(), [
             'full_name' => 'required|string|max:255',
             'email' => 'sometimes|string|email|max:255',
@@ -664,7 +663,6 @@ class AuthController extends Controller
             'avatar' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:20480', // 20MB max
         ]);
 
-        // check validation
         if ($validator->fails()) {
             return response()->json([
                 'ok' => false,
@@ -674,7 +672,6 @@ class AuthController extends Controller
 
         $user = User::find(Auth::id());
 
-        // User Not Found
         if (!$user) {
             return response()->json([
                 'ok' => false,
@@ -682,18 +679,38 @@ class AuthController extends Controller
             ], 404);
         }
 
+        // if ($request->hasFile('avatar')) {
+        //     if ($user->avatar && file_exists(public_path($user->avatar))) {
+        //         unlink(public_path($user->avatar));
+        //     }
+
+        //     $file = $request->file('avatar');
+        //     $filename = time() . '_' . $file->getClientOriginalName();
+        //     $filepath = $file->storeAs('avatars', $filename, 'public');
+
+        //     $user->avatar = '/storage/' . $filepath;
+        //     $user->save();
+        // }
+
         if ($request->hasFile('avatar')) {
-            if ($user->avatar && file_exists(public_path($user->avatar))) {
-                unlink(public_path($user->avatar));
+            if ($user->avatar) {
+                $relativePath = ltrim(str_replace('/storage/', '', $user->avatar), '/');
+
+                if (Storage::disk('public')->exists($relativePath)) {
+                    Storage::disk('public')->delete($relativePath);
+                }
             }
-
-            $file = $request->file('avatar');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $filepath = $file->storeAs('avatars', $filename, 'public');
-            $user->avatar = '/storage/' . $filepath;
-            $user->save();
+            $filePath = $imageUploadService->imageUpload(
+                $request->file('avatar'),
+                'avatar',
+                'avatars',
+                null,
+                null,
+                50,
+                false
+            );
+            $user->avatar = '/storage/' . $filePath;
         }
-
 
         $user->full_name = $request->full_name;
 
@@ -708,7 +725,6 @@ class AuthController extends Controller
         } else {
             $user->email = $request->email;
         }
-
 
         $user->home_address = $request->home_address;
         $user->city = $request->city;

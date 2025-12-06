@@ -69,9 +69,9 @@ class User extends Authenticatable implements JWTSubject
     }
 
     // base url for avatar http://10.0.80.16:8000/storage/avatars/name.jpeg
-    public function getAvatarAttribute($value)
-    {
-        return $value ? asset( $value) : null;
-    }
+    // public function getAvatarAttribute($value)
+    // {
+    //     return $value ? asset( $value) : null;
+    // }
 
 }
